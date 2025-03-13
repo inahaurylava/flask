@@ -1,0 +1,39 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Установка системных зависимостей, включая Java для Allure
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      openjdk-17-jre-headless \
+      wget \
+      unzip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Установка основных зависимостей
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Установка зависимостей для тестирования
+COPY tests/requirements.txt ./tests/
+RUN pip install --no-cache-dir -r tests/requirements.txt
+
+# Копирование тестов и конфигурационных файлов
+COPY . .
+
+# Установка Allure Commandline
+RUN wget https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.33.0/allure-commandline-2.33.0.zip && \
+    unzip allure-commandline-2.33.0.zip -d /opt/allure && \
+    ln -s /opt/allure/allure-2.33.0/bin/allure /usr/local/bin/allure && \
+    rm allure-commandline-2.33.0.zip
+
+# Переменные окружения для тестов
+ENV DATABASE_URL=postgresql://postgres:postgres@db:5432/taskmanager
+ENV TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/taskmanager_test
+# Переменная для выбора тестов, по умолчанию - тест подключения к БД
+ENV TEST_PATH=tests/test_db_connection.py
+ENV TEST_ARGS=""
+
+# Используем CMD для запуска тестов с переменными окружения и отключенным перехватом вывода
+CMD pytest ${TEST_PATH} -v -s ${TEST_ARGS}

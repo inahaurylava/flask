@@ -1,0 +1,40 @@
+# Файлы и папки, игнорируемые в Python-проектах
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+*.egg-info/
+*.egg
+
+# Файлы и папки, специфичные для Flask
+instance/
+*.sqlite
+*.sqlite3
+
+# Лог-файлы и временные файлы
+*.log
+nohup.out
+
+# Конфигурационные файлы и переменные окружения
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+config.py
+
+# Файлы зависимостей
+poetry.lock
+Pipfile
+Pipfile.lock
+
+# Docker-файлы
+.dockerignore
+docker-compose.override.yml
+allure-report/
+test-results/

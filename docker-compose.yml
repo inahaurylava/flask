@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ${MY_APP_DIR:-.}:/app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=1
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/taskmanager
+    depends_on:
+      - db
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=taskmanager
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  test:
+    build:
+      context: .
+      dockerfile: ./tests/Dockerfile.test
+    volumes:
+      - ${MY_APP_DIR:-.}:/app
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=taskmanager
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - TEST_PATH=tests/test_db_connection.py
+      - TEST_ARGS=
+    depends_on:
+      - db
+      - web
+
+  lint:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.linter
+    volumes:
+      - ${MY_APP_DIR:-.}:/app
+
+volumes:
+  postgres_data:

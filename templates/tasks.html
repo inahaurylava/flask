@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои задачи | Менеджер задач{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4" data-testid="tasks-header">
+    <h1 data-testid="tasks-title">Мои задачи</h1>
+    <a href="{{ url_for('create_task') }}" class="btn btn-primary" data-testid="create-task-button">Создать задачу</a>
+</div>
+
+{% if tasks %}
+    <div class="row" data-testid="tasks-container">
+        {% for task in tasks %}
+            <div class="col-md-4 mb-4" data-testid="task-item-{{ task.id }}">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 {% if task.completed %}task-completed{% endif %}" data-testid="task-title-{{ task.id }}">{{ task.title }}</h5>
+                        <form method="post" action="{{ url_for('toggle_task', task_id=task.id) }}" class="d-inline" data-testid="toggle-form-{{ task.id }}">
+                            <button type="submit" class="btn btn-sm {% if task.completed %}btn-success{% else %}btn-outline-success{% endif %}" data-testid="toggle-button-{{ task.id }}">
+                                {% if task.completed %}✓{% else %}○{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text {% if task.completed %}task-completed{% endif %}" data-testid="task-description-{{ task.id }}">
+                            {% if task.description %}
+                                {{ task.description }}
+                            {% else %}
+                                <em>Нет описания</em>
+                            {% endif %}
+                        </p>
+                        <p class="text-muted small" data-testid="task-date-{{ task.id }}">Создано: {{ task.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{{ url_for('view_task', task_id=task.id) }}" class="btn btn-sm btn-info" data-testid="view-task-button-{{ task.id }}">Просмотр</a>
+                        <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-sm btn-warning" data-testid="edit-task-button-{{ task.id }}">Изменить</a>
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ task.id }}" data-testid="delete-task-button-{{ task.id }}">
+                            Удалить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модальное окно подтверждения удаления -->
+            <div class="modal fade" id="deleteModal{{ task.id }}" tabindex="-1" aria-hidden="true" data-testid="delete-modal-{{ task.id }}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" data-testid="delete-modal-title-{{ task.id }}">Подтверждение удаления</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-testid="delete-modal-close-{{ task.id }}"></button>
+                        </div>
+                        <div class="modal-body" data-testid="delete-modal-body-{{ task.id }}">
+                            <p>Вы уверены, что хотите удалить задачу "{{ task.title }}"?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-testid="delete-modal-cancel-{{ task.id }}">Отмена</button>
+                            <form method="post" action="{{ url_for('delete_task', task_id=task.id) }}" data-testid="delete-form-{{ task.id }}">
+                                <button type="submit" class="btn btn-danger" data-testid="delete-confirm-button-{{ task.id }}">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info" data-testid="no-tasks-message">
+        <p>У вас пока нет задач. <a href="{{ url_for('create_task') }}" data-testid="create-first-task-link">Создайте первую задачу</a>!</p>
+    </div>
+{% endif %}
+{% endblock %}
