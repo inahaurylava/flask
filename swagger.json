@@ -1,0 +1,342 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Менеджер задач API",
+    "description": "API для управления задачами",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/register": {
+      "post": {
+        "summary": "Регистрация нового пользователя",
+        "description": "Создает нового пользователя в системе",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "Данные пользователя",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserRegistration"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Пользователь успешно зарегистрирован"
+          },
+          "400": {
+            "description": "Неверный запрос или пользователь уже существует"
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "summary": "Вход в систему",
+        "description": "Аутентификация пользователя в системе",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "description": "Учетные данные пользователя",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserLogin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешный вход в систему",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неверное имя пользователя или пароль"
+          }
+        }
+      }
+    },
+    "/api/tasks": {
+      "get": {
+        "summary": "Получить список задач",
+        "description": "Возвращает список задач текущего пользователя",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Task"
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "post": {
+        "summary": "Создать новую задачу",
+        "description": "Создает новую задачу для текущего пользователя",
+        "parameters": [
+          {
+            "name": "task",
+            "in": "body",
+            "description": "Данные задачи",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TaskInput"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Задача создана",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          },
+          "400": {
+            "description": "Неверный запрос"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      }
+    },
+    "/api/tasks/{task_id}": {
+      "get": {
+        "summary": "Получить задачу по ID",
+        "description": "Возвращает задачу по указанному ID",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "ID задачи",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          },
+          "404": {
+            "description": "Задача не найдена"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "put": {
+        "summary": "Обновить задачу",
+        "description": "Обновляет существующую задачу",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "ID задачи",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "task",
+            "in": "body",
+            "description": "Данные задачи",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TaskInput"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Задача обновлена",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          },
+          "400": {
+            "description": "Неверный запрос"
+          },
+          "404": {
+            "description": "Задача не найдена"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Удалить задачу",
+        "description": "Удаляет задачу по указанному ID",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "ID задачи",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Задача удалена"
+          },
+          "404": {
+            "description": "Задача не найдена"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      }
+    },
+    "/api/tasks/{task_id}/toggle": {
+      "post": {
+        "summary": "Переключить статус задачи",
+        "description": "Переключает статус задачи между выполнено/не выполнено",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "ID задачи",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус задачи изменен",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          },
+          "404": {
+            "description": "Задача не найдена"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Task": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Уникальный идентификатор задачи"
+        },
+        "title": {
+          "type": "string",
+          "description": "Название задачи"
+        },
+        "description": {
+          "type": "string",
+          "description": "Описание задачи"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Дата и время создания задачи"
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Статус выполнения задачи"
+        },
+        "user_id": {
+          "type": "integer",
+          "description": "ID пользователя, которому принадлежит задача"
+        }
+      }
+    },
+    "TaskInput": {
+      "type": "object",
+      "required": [
+        "title"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Название задачи"
+        },
+        "description": {
+          "type": "string",
+          "description": "Описание задачи"
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Статус выполнения задачи"
+        }
+      }
+    },
+    "UserRegistration": {
+      "type": "object",
+      "required": [
+        "username",
+        "password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Имя пользователя"
+        },
+        "password": {
+          "type": "string",
+          "description": "Пароль пользователя",
+          "format": "password"
+        }
+      }
+    },
+    "UserLogin": {
+      "type": "object",
+      "required": [
+        "username",
+        "password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Имя пользователя"
+        },
+        "password": {
+          "type": "string",
+          "description": "Пароль пользователя",
+          "format": "password"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактировать задачу | Менеджер задач{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Редактировать задачу</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" data-testid="edit-task-form">
+                    <div class="mb-3">
+                        <label for="title" class="form-label" data-testid="title-label">Название задачи</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ task.title }}" data-testid="title-input">
+                        <div class="invalid-feedback" id="title-error" data-testid="title-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label" data-testid="description-label">Описание (необязательно)</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" data-testid="description-input">{{ task.description }}</textarea>
+                        <div class="invalid-feedback" id="description-error" data-testid="description-error"></div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="completed" name="completed" {% if task.completed %}checked{% endif %} data-testid="completed-checkbox">
+                        <label class="form-check-label" for="completed" data-testid="completed-label">Выполнено</label>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('tasks') }}" class="btn btn-secondary" data-testid="cancel-button">Отмена</a>
+                        <button type="submit" class="btn btn-primary" data-testid="submit-button">Сохранить изменения</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

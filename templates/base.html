@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Менеджер задач{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .task-completed {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4" data-testid="main-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}" data-testid="navbar-brand">Менеджер задач</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" data-testid="navbar-toggler">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto" data-testid="navbar-nav">
+                    {% if 'user_id' in session %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('tasks') }}" data-testid="nav-tasks">Мои задачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_task') }}" data-testid="nav-create-task">Создать задачу</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/docs" data-testid="nav-api-docs">API Docs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}" data-testid="nav-logout">Выйти ({{ session['username'] }})</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('api_documentation') }}" data-testid="nav-api-docs">API Docs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}" data-testid="nav-login">Войти</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}" data-testid="nav-register">Регистрация</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" data-testid="main-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" data-testid="flash-message-{{ category }}">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" data-testid="flash-close-button"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Скрипты для валидации форм -->
+    <script>
+        // Общая функция валидации
+        function validateForm(form, validationRules) {
+            let isValid = true;
+            
+            // Сбросить предыдущие ошибки
+            form.querySelectorAll('.is-invalid').forEach(field => {
+                field.classList.remove('is-invalid');
+            });
+            
+            // Проверить каждое поле
+            for (const fieldName in validationRules) {
+                const field = form.querySelector(`#${fieldName}`);
+                const value = field.value.trim();
+                const rules = validationRules[fieldName];
+                const errorElement = form.querySelector(`#${fieldName}-error`);
+                
+                // Проверка на пустое значение
+                if (rules.required && value === '') {
+                    errorElement.textContent = rules.requiredMessage || 'Это поле обязательно для заполнения';
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                    continue;
+                }
+                
+                // Проверка минимальной длины
+                if (rules.minLength && value.length < rules.minLength) {
+                    errorElement.textContent = rules.minLengthMessage || `Минимальная длина: ${rules.minLength} символов`;
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                    continue;
+                }
+                
+                // Проверка максимальной длины
+                if (rules.maxLength && value.length > rules.maxLength) {
+                    errorElement.textContent = rules.maxLengthMessage || `Максимальная длина: ${rules.maxLength} символов`;
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                    continue;
+                }
+                
+                // Проверка по регулярному выражению
+                if (rules.pattern && !rules.pattern.test(value)) {
+                    errorElement.textContent = rules.patternMessage || 'Неверный формат';
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                    continue;
+                }
+                
+                // Дополнительная пользовательская валидация
+                if (rules.customValidation && !rules.customValidation(value)) {
+                    errorElement.textContent = rules.customMessage || 'Неверное значение';
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                    continue;
+                }
+            }
+            
+            return isValid;
+        }
+        
+        // Инициализация валидации форм при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Валидация формы входа
+            const loginForm = document.querySelector('form[action*="login"]');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    const validationRules = {
+                        username: {
+                            required: true,
+                            requiredMessage: 'Пожалуйста, введите имя пользователя'
+                        },
+                        password: {
+                            required: true,
+                            requiredMessage: 'Пожалуйста, введите пароль'
+                        }
+                    };
+                    
+                    if (!validateForm(this, validationRules)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            // Валидация формы регистрации
+            const registerForm = document.querySelector('form[action*="register"]');
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    const validationRules = {
+                        username: {
+                            required: true,
+                            requiredMessage: 'Пожалуйста, введите имя пользователя',
+                            minLength: 3,
+                            minLengthMessage: 'Имя пользователя должно содержать не менее 3 символов',
+                            maxLength: 20,
+                            maxLengthMessage: 'Имя пользователя должно содержать не более 20 символов',
+                            pattern: /^[a-zA-Z0-9_]+$/,
+                            patternMessage: 'Имя пользователя может содержать только буквы, цифры и символ подчеркивания'
+                        },
+                        password: {
+                            required: true,
+                            requiredMessage: 'Пожалуйста, введите пароль',
+                            minLength: 6,
+                            minLengthMessage: 'Пароль должен содержать не менее 6 символов'
+                        }
+                    };
+                    
+                    if (!validateForm(this, validationRules)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            // Валидация формы создания задачи
+            const createTaskForm = document.querySelector('form[action*="create"]');
+            if (createTaskForm) {
+                createTaskForm.addEventListener('submit', function(e) {
+                    const validationRules = {
+                        title: {
+                            required: true,
+                            requiredMessage: 'Пожалуйста, введите название задачи',
+                            maxLength: 100,
+                            maxLengthMessage: 'Название задачи должно содержать не более 100 символов'
+                        }
+                    };
+                    
+                    if (!validateForm(this, validationRules)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            // Валидация формы редактирования задачи
+            const editTaskForm = document.querySelector('form[action*="edit"]');
+            if (editTaskForm) {
+                editTaskForm.addEventListener('submit', function(e) {
+                    const validationRules = {
+                        title: {
+                            required: true,
+                            requiredMessage: 'Пожалуйста, введите название задачи',
+                            maxLength: 100,
+                            maxLengthMessage: 'Название задачи должно содержать не более 100 символов'
+                        }
+                    };
+                    
+                    if (!validateForm(this, validationRules)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} | Менеджер задач{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card" data-testid="task-view-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0 {% if task.completed %}task-completed{% endif %}" data-testid="task-title">{{ task.title }}</h3>
+                <span class="badge {% if task.completed %}bg-success{% else %}bg-warning{% endif %}" data-testid="task-status-badge">
+                    {% if task.completed %}Выполнено{% else %}В процессе{% endif %}
+                </span>
+            </div>
+            <div class="card-body" data-testid="task-body">
+                <div class="mb-4" data-testid="task-description-section">
+                    <h5 data-testid="description-heading">Описание:</h5>
+                    <p class="{% if task.completed %}task-completed{% endif %}" data-testid="task-description">
+                        {% if task.description %}
+                            {{ task.description }}
+                        {% else %}
+                            <em>Нет описания</em>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-4" data-testid="task-info-section">
+                    <h5 data-testid="info-heading">Информация:</h5>
+                    <p data-testid="task-created-date"><strong>Создано:</strong> {{ task.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                    <p data-testid="task-status"><strong>Статус:</strong> {% if task.completed %}Выполнено{% else %}В процессе{% endif %}</p>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between" data-testid="task-footer">
+                <a href="{{ url_for('tasks') }}" class="btn btn-secondary" data-testid="back-button">Назад к списку</a>
+                <div>
+                    <form method="post" action="{{ url_for('toggle_task', task_id=task.id) }}" class="d-inline" data-testid="toggle-form">
+                        <button type="submit" class="btn btn-success" data-testid="toggle-status-button">
+                            {% if task.completed %}Отметить как невыполненную{% else %}Отметить как выполненную{% endif %}
+                        </button>
+                    </form>
+                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-warning" data-testid="edit-button">Редактировать</a>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-testid="delete-button">
+                        Удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" data-testid="delete-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-testid="delete-modal-title">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-testid="delete-modal-close"></button>
+            </div>
+            <div class="modal-body" data-testid="delete-modal-body">
+                <p>Вы уверены, что хотите удалить задачу "{{ task.title }}"?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-testid="delete-modal-cancel">Отмена</button>
+                <form method="post" action="{{ url_for('delete_task', task_id=task.id) }}" data-testid="delete-form">
+                    <button type="submit" class="btn btn-danger" data-testid="delete-confirm-button">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
