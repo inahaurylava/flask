@@ -97,7 +97,7 @@ def test_database_connection():
 
 ```python
 # Для тестов, запускаемых внутри Docker-сети
-db_params = {
+db_params = {   
     'dbname': 'taskmanager',
     'user': 'postgres',
     'password': 'postgres',

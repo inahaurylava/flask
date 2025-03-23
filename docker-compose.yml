@@ -50,7 +50,7 @@ services:
       - POSTGRES_DB=taskmanager
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - TEST_PATH=tests/test_db_connection.py
+      - TEST_PATH=tests/test_api.py
       - TEST_ARGS=
     depends_on:
       - db

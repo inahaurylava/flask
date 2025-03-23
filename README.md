@@ -143,6 +143,7 @@
 
    # Тест с allure reports 
    docker compose run --rm -e TEST_ARGS=--alluredir=test-results test
+   docker compose run --rm -e TEST_PATH=tests/test_ui.py TEST_ARGS=--alluredir=test-results test
 
    allure generate test-results -o allure-report --clean
 
