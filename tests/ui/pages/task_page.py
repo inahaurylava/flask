@@ -1,4 +1,4 @@
-from pages.base_page import BasePage
+from tests.ui.pages.base_page import BasePage
 
 class TaskPage(BasePage):
     __INPUT_TASK_TITLE = "[data-testid=\"title-input\"]"
@@ -119,7 +119,14 @@ class TaskPage(BasePage):
 
         confirm_delete_button.click()
 
-        first_task = self.get_first_task_item()
-        first_task_header = first_task.locator(self.__TASK_ITEM_HEADER)
-        assert first_task_header.inner_text() != title, "❌ Таск был найден после его удаления"
-        print("✅ Таск был ожидаемо не найден после удаления")
+        any_task = self.playwright.locator(self.__TASKS_CONTAINER)
+        visible = any_task.is_visible()
+
+        if visible:
+            first_task = self.get_first_task_item()
+            first_task_header = first_task.locator(self.__TASK_ITEM_HEADER)
+            assert first_task_header.inner_text() != title, "❌ Таск был найден после его удаления"
+            print("✅ Таск был ожидаемо не найден после удаления")
+        else:
+            print("✅ Таск был ожидаемо не найден после удаления")
+

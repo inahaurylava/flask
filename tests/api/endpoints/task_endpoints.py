@@ -1,5 +1,5 @@
 import requests
-from endpoints.base_endpoints import BaseEndpoints
+from tests.api.endpoints.base_endpoints import BaseEndpoints
 
 class TaskEndpoints(BaseEndpoints):
     __TASK_ROUTE = "api/tasks"

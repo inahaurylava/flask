@@ -1,5 +1,5 @@
 import requests
-from endpoints.base_endpoints import BaseEndpoints
+from tests.api.endpoints.base_endpoints import BaseEndpoints
 
 class UserEndpoints(BaseEndpoints):
     __CREATE_USER_ROUTE = "api/register"
@@ -15,8 +15,8 @@ class UserEndpoints(BaseEndpoints):
                                  "password": password
                              })
 
-        assert resp.status_code == 201, "❌Юзер не был создан успешно"
-        print("✅Юзер успешно создан")
+        assert resp.status_code == 201, "❌ Юзер не был создан успешно"
+        print("✅ Юзер успешно создан")
 
 
     def login_user(self, username, password):
@@ -27,7 +27,7 @@ class UserEndpoints(BaseEndpoints):
                              })
 
         assert resp.status_code == 200, "❌ Юзер не был успешно залогинен"
-        print("✅Юзер успешно залогинен")
+        print("✅ Юзер успешно залогинен")
 
         cookies = resp.cookies
         return cookies['session']

@@ -1,13 +1,13 @@
-from conftest_api import api_fixture
-from conftest_api import db_connection
-from db.db_operations import DbOperations
-from endpoints.task_endpoints import TaskEndpoints
-from endpoints.user_endpoints import UserEndpoints
+from tests.api.conftest_api import api_fixture
+from tests.api.conftest_api import db_connection
+from tests.api.db.db_operations import DbOperations
+from tests.api.endpoints.task_endpoints import TaskEndpoints
+from tests.api.endpoints.user_endpoints import UserEndpoints
 import allure
 import pytest
 
 params = [
-    ("ina_5", "password123")
+    ("ina_api", "password123")
 ]
 
 @allure.feature("API Тест")
