@@ -7,16 +7,16 @@ DB_PARAMS = {
     'user': os.environ.get('POSTGRES_USER', 'postgres'),
     'password': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
     #local
-    'host': os.environ.get('POSTGRES_HOST', 'localhost'),
+    #'host': os.environ.get('POSTGRES_HOST', 'localhost'),
     #Docker
-    #'host': os.environ.get('POSTGRES_HOST', 'db'),
+    'host': os.environ.get('POSTGRES_HOST', 'db'),
     'port': os.environ.get('POSTGRES_PORT', '5432')
 }
 
 @pytest.fixture
 def api_fixture():
-    host = "http://localhost:5000"
-    #host = "http://web:5000"
+    #host = "http://localhost:5000"
+    host = "http://web:5000"
 
     return { "host" : host }
 
