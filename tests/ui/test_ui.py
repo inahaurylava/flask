@@ -1,5 +1,4 @@
 import time
-
 from tests.ui.conftest import playwright_page
 from tests.ui.conftest import app_fixture
 import allure

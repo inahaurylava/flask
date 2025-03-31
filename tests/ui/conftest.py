@@ -1,8 +1,5 @@
 import pytest
 from playwright.sync_api import sync_playwright
-import os
-import psycopg2
-
 
 @pytest.fixture
 def app_fixture():
